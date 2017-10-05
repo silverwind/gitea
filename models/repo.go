@@ -819,7 +819,7 @@ func (repo *Repository) cloneLink(isWiki bool) *CloneLink {
 	} else {
 		cl.SSH = fmt.Sprintf("%s@%s:%s/%s.git", setting.RunUser, setting.SSH.Domain, repo.Owner.Name, repoName)
 	}
-	cl.HTTPS = ComposeHTTPSCloneURL(repo.Owner.Name, repoName, nil)
+	cl.HTTPS = "XXX"
 	return cl
 }
 
