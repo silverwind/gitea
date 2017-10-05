@@ -165,6 +165,10 @@ func Contexter() macaron.Handler {
 		}
 		c.Data["Link"] = ctx.Link
 		ctx.Data["PageStartTime"] = time.Now()
+
+		// Get user from session if logged in.
+		ctx.User, ctx.IsBasicAuth = auth.SignedInUser(ctx.Context, ctx.Session)
+
 		// Quick responses appropriate go-get meta with status 200
 		// regardless of if user have access to the repository,
 		// or the repository does not exist at all.
@@ -195,15 +199,13 @@ func Contexter() macaron.Handler {
 </html>
 `, map[string]string{
 				"GoGetImport":    ComposeGoGetImport(ownerName, strings.TrimSuffix(repoName, ".git")),
-				"CloneLink":      models.ComposeHTTPSCloneURL(ownerName, repoName),
+				"CloneLink":      models.ComposeHTTPSCloneURL(ownerName, repoName, ctx.User),
 				"GoDocDirectory": prefix + "{/dir}",
 				"GoDocFile":      prefix + "{/dir}/{file}#L{line}",
 			})))
 			return
 		}
 
-		// Get user from session if logged in.
-		ctx.User, ctx.IsBasicAuth = auth.SignedInUser(ctx.Context, ctx.Session)
 
 		if ctx.User != nil {
 			ctx.IsSigned = true
