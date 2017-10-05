@@ -798,9 +798,9 @@ type CloneLink struct {
 // ComposeHTTPSCloneURL returns HTTPS clone URL based on given owner and repository name.
 func ComposeHTTPSCloneURL(owner, repo string, u *User) string {
 	if u != nil {
-		return fmt.Sprintf("%s%s@%s/%s.git", setting.AppURL, u.Name, owner, repo)
+		return fmt.Sprintf("x%s%s@%s/%s.git", setting.AppURL, u.Name, owner, repo)
 	} else {
-		return fmt.Sprintf("%s%s/%s.git", setting.AppURL, owner, repo)
+		return fmt.Sprintf("y%s%s/%s.git", setting.AppURL, owner, repo)
 	}
 }
 
