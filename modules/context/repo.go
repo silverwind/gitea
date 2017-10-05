@@ -150,7 +150,7 @@ func EarlyResponseForGoGetMeta(ctx *Context) {
 	ctx.PlainText(200, []byte(com.Expand(`<meta name="go-import" content="{GoGetImport} git {CloneLink}">`,
 		map[string]string{
 			"GoGetImport": ComposeGoGetImport(username, strings.TrimSuffix(reponame, ".git")),
-			"CloneLink":   models.ComposeHTTPSCloneURL(username, reponame),
+			"CloneLink":   models.ComposeHTTPSCloneURL(username, reponame, ctx.User),
 		})))
 }
 
