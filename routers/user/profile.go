@@ -48,7 +48,12 @@ func Profile(ctx *context.Context) {
 	uname := ctx.Params(":username")
 	// Special handle for FireFox requests favicon.ico.
 	if uname == "favicon.ico" {
-		ctx.ServeFile(path.Join(setting.StaticRootPath, "public/img/favicon.png"))
+		customIcon := path.Join(setting.CustomPath, "img/favicon.png")
+		if com.IsFile(customIcon) {
+			return ctx.ServeFile(customIcon)
+		} else {
+			ctx.ServeFile(path.Join(setting.StaticRootPath, "public/img/favicon.png"))
+		}
 		return
 	} else if strings.HasSuffix(uname, ".png") {
 		ctx.Error(404)
