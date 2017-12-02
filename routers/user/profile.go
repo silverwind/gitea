@@ -9,6 +9,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/Unknwon/com"
 	"github.com/Unknwon/paginater"
 
 	"code.gitea.io/gitea/models"
@@ -50,7 +51,7 @@ func Profile(ctx *context.Context) {
 	if uname == "favicon.ico" {
 		customIcon := path.Join(setting.CustomPath, "img/favicon.png")
 		if com.IsFile(customIcon) {
-			return ctx.ServeFile(customIcon)
+			ctx.ServeFile(customIcon)
 		} else {
 			ctx.ServeFile(path.Join(setting.StaticRootPath, "public/img/favicon.png"))
 		}
