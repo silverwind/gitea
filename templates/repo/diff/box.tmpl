@@ -82,6 +82,7 @@
 						{{end}}
 					{{end}}
 				</h4>
+				{{if (and ($file.Sections)(not $isImage))}}
 				<div class="ui attached table segment">
 					{{if ne $file.Type 4}}
 						{{$isImage := (call $.IsImageFile $file.Name)}}
