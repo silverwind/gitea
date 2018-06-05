@@ -973,19 +973,21 @@
         }
         .file-body.file-code {
             .lines-num {
+                vertical-align: top;
                 text-align: right;
-                color: #A7A7A7;
-                background: #fafafa;
+                color: #999;
+                background: #f5f5f5;
                 width: 1%;
                 -moz-user-select: none;
                 -ms-user-select: none;
                 -webkit-user-select: none;
                 user-select: none;
-                vertical-align: top;
 
-                span.fold {
+                span {
+                    line-height: 20px;
+                    padding: 0 10px;
+                    cursor: pointer;
                     display: block;
-                    text-align: center;
                 }
             }
             .lines-num-old {
