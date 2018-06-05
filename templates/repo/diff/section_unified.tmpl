@@ -18,10 +18,4 @@
 		{{end}}
 	{{end}}
 {{end}}
-<pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">
-	{{range $j, $section := $file.Sections}}
-		{{range $k, $line := $section.Lines}}
-			<div class="lines-code {{DiffLineTypeToStr .GetType}}-code">{{$section.GetComputedInlineDiffFor $line}}</div>
-		{{end}}
-	{{end}}
-</code></pre>
+<pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{range $j, $section := $file.Sections}}{{range $k, $line := $section.Lines}}<div class="lines-code {{DiffLineTypeToStr .GetType}}-code">{{$section.GetComputedInlineDiffFor $line}}</div>{{end}}{{end}}</code></pre>
