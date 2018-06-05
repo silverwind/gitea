@@ -1,10 +1,10 @@
 {{$file := .}}
 {{$highlightClass := $file.GetHighlightClass}}
-<tr>
-	{{range $j, $section := $file.Sections}}
-		{{range $k, $line := $section.Lines}}
+{{range $j, $section := $file.Sections}}
+	{{range $k, $line := $section.Lines}}
+		<tr>
 			{{if eq .GetType 4}}
-			<td colspan="2" class="lines-num {{DiffLineTypeToStr .GetType}}-code">
+			<td colspan="3" class="lines-num {{DiffLineTypeToStr .GetType}}-code">
 				{{/* {{if gt $j 0}}<span class="fold octicon octicon-fold"></span>{{end}} */}}
 			</td>
 			{{else}}
@@ -14,14 +14,11 @@
 			<td class="lines-num {{DiffLineTypeToStr .GetType}}-code">
 				<span rel="{{if $line.RightIdx}}diff-{{Sha1 $file.Name}}R{{$line.RightIdx}}{{end}}">{{if $line.RightIdx}}{{$line.RightIdx}}{{end}}</span>
 			</td>
-			{{end}}
+			<td class="lines-code">
+				<pre><code class="wrap {{DiffLineTypeToStr .GetType}}-code {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.GetComputedInlineDiffFor $line}}</code></pre>
+			</td>
+		</tr>
 		{{end}}
 	{{end}}
-	<td class="lines-code">
-		{{range $j, $section := $file.Sections}}
-			{{range $k, $line := $section.Lines}}
-			<pre><code class="wrap {{DiffLineTypeToStr .GetType}}-code {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.GetComputedInlineDiffFor $line}}</code></pre>
-			{{end}}
-		{{end}}
-	</td>
-</tr>
+{{end}}
+
