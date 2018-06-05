@@ -14,9 +14,13 @@
 			<td class="lines-num {{DiffLineTypeToStr .GetType}}-code">
 				<span rel="{{if $line.RightIdx}}diff-{{Sha1 $file.Name}}R{{$line.RightIdx}}{{end}}">{{if $line.RightIdx}}{{$line.RightIdx}}{{end}}</span>
 			</td>
-			<td class="lines-code {{DiffLineTypeToStr .GetType}}-code"><pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.GetComputedInlineDiffFor $line}}</code></pre></td>
 		</tr>
 		{{end}}
+	{{end}}
+{{end}}
+{{range $j, $section := $file.Sections}}
+	{{range $k, $line := $section.Lines}}
+		<tr><td class="lines-code {{DiffLineTypeToStr .GetType}}-code"><pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.GetComputedInlineDiffFor $line}}</code></pre></td></tr>
 	{{end}}
 {{end}}
 
