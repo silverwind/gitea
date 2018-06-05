@@ -1,6 +1,6 @@
 {{$file := .}}
 {{$highlightClass := $file.GetHighlightClass}}
-<tr class="{{DiffLineTypeToStr .GetType}}-code nl-{{$k}} ol-{{$k}}">
+<tr class="{{DiffLineTypeToStr .GetType}}-code">
 	{{range $j, $section := $file.Sections}}
 		{{range $k, $line := $section.Lines}}
 			{{if eq .GetType 4}}
