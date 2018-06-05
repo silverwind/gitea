@@ -981,6 +981,7 @@
                 -ms-user-select: none;
                 -webkit-user-select: none;
                 user-select: none;
+                display: block;
 
                 span {
                     line-height: 20px;
@@ -1042,13 +1043,13 @@
                 }
             }
         }
-        .code-diff-unified tbody tr {
-            &.del-code td {
+        .code-diff-unified tbody {
+            .del-code td {
                 background-color: #ffe0e0 !important;
                 border-color: #f1c0c0 !important;
             }
 
-            &.add-code td {
+            .add-code td {
                 background-color: #d6fcd6 !important;
                 border-color: #c1e9c1 !important;
             }
