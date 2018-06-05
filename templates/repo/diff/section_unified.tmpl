@@ -14,6 +14,7 @@
 		<td class="lines-num {{DiffLineTypeToStr .GetType}}-code">
 			<span rel="{{if $line.RightIdx}}diff-{{Sha1 $file.Name}}R{{$line.RightIdx}}{{end}}">{{if $line.RightIdx}}{{$line.RightIdx}}{{end}}</span>
 		</td>
+		{{end}}
 	</tr>
 	{{end}}
 {{end}}
