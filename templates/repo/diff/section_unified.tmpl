@@ -16,6 +16,10 @@
 		{{end}}
 	{{end}}
 	<td class="lines-code">
-		<pre><code class="wrap {{DiffLineTypeToStr .GetType}}-code {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{range $j, $section := $file.Sections}}{{range $k, $line := $section.Lines}}{{$section.GetComputedInlineDiffFor $line}}{{end}}{{end}}</code></pre>
+		{{range $j, $section := $file.Sections}}
+			{{range $k, $line := $section.Lines}}
+			<pre><code class="wrap {{DiffLineTypeToStr .GetType}}-code {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.GetComputedInlineDiffFor $line}}</code></pre>
+			{{end}}
+		{{end}}
 	</td>
 </tr>
