@@ -1850,10 +1850,12 @@ tbody.commit-list {
     cursor: pointer;
 }
 
-@media only screen and (max-width: 768px) {
-    .new-dependency-drop-list {
-        width: 100%;
-    }
+.new-dependency-drop-list {
+   width: 100%;
+   min-width: 0 !important;
+   border-radius: 4px 0 0 4px;
+   border-right: 0;
+   white-space: nowrap;
 }
 
 #manage_topic {
