@@ -133,6 +133,11 @@
     }
 
     .filter.menu {
+        > .item {
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+        }
+
         .label.color {
             border-radius: 3px;
             margin-left: 15px;
@@ -146,7 +151,10 @@
         }
 
         &.labels .octicon {
-            margin: -2px -7px 0 -5px;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .text {
