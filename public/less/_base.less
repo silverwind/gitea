@@ -839,6 +839,12 @@ footer {
         padding-bottom: 5px;
     }
 
+    @supports (justify-content: safe center) {
+        .ui.menu.new-menu {
+            justify-content: safe center !important;
+        }
+    }
+
     .ui.menu.new-menu::-webkit-scrollbar {
         height: 8px;
         display: none;
