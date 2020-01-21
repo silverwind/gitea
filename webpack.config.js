@@ -3,13 +3,15 @@ const TerserPlugin = require('terser-webpack-plugin');
 const { SourceMapDevToolPlugin } = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
-module.exports = {
+const entryPoints = {
+  index: ['./web_src/js/index'],
+  swagger: ['./web_src/js/swagger'],
+  jquery: ['./web_src/js/jquery'],
+};
+
+const options = {
   mode: 'production',
-  entry: {
-    index: ['./web_src/js/index'],
-    swagger: ['./web_src/js/swagger'],
-    jquery: ['./web_src/js/jquery'],
-  },
+  stats: 'minimal',
   devtool: false,
   output: {
     path: path.resolve(__dirname, 'public/js'),
@@ -38,29 +40,32 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              [
-                '@babel/preset-env',
-                {
-                  useBuiltIns: 'usage',
-                  corejs: 3,
-                }
-              ]
-            ],
-            plugins: [
-              [
-                '@babel/plugin-transform-runtime',
-                {
-                  regenerator: true,
-                }
+        use: [
+          'thread-loader',
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    useBuiltIns: 'usage',
+                    corejs: 3,
+                  }
+                ]
               ],
-              '@babel/plugin-proposal-object-rest-spread',
-            ],
-          }
-        }
+              plugins: [
+                [
+                  '@babel/plugin-transform-runtime',
+                  {
+                    regenerator: true,
+                  }
+                ],
+                '@babel/plugin-proposal-object-rest-spread',
+              ],
+            },
+          },
+        ],
       },
       {
         test: /\.css$/i,
@@ -74,6 +79,7 @@ module.exports = {
       filename: '[name].js.map',
       exclude: [
         'swagger.js',
+        'jquery.js',
       ],
     }),
   ],
@@ -85,3 +91,7 @@ module.exports = {
     }
   },
 };
+
+module.exports = Object.keys(entryPoints).map((key) => {
+  return { entry: { [key]: entryPoints[key] }, ...options };
+});
