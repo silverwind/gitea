@@ -10,6 +10,7 @@ HAS_GO = $(shell hash $(GO) > /dev/null 2>&1 && echo "GO" || echo "NOGO" )
 COMMA := ,
 
 XGO_VERSION := go-1.14.x
+GOLANGCI_VERSION := 1.24.0
 MIN_GO_VERSION := 001012000
 MIN_NODE_VERSION := 010000000
 
@@ -21,8 +22,10 @@ endif
 
 ifeq ($(OS), Windows_NT)
 	EXECUTABLE ?= gitea.exe
+	SEP := \\
 else
 	EXECUTABLE ?= gitea
+	SEP := /
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Darwin)
 		SED_INPLACE := sed -i ''
@@ -616,8 +619,8 @@ pr\#%: clean-all
 
 .PHONY: golangci-lint
 golangci-lint:
-	@hash golangci-lint > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+	@hash golangci-lint > /dev/null 2>&1; if [ $$? -ne 0 -o "$$(golangci-lint --version | grep -Eo '[0-9]+\.[0-9.]+')" != "$(GOLANGCI_VERSION)" ]; then \
 		export BINARY="golangci-lint"; \
-		curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(GOPATH)/bin v1.20.0; \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)$(SEP)bin v$(GOLANGCI_VERSION); \
 	fi
 	golangci-lint run --timeout 5m
