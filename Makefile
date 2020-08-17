@@ -97,6 +97,7 @@ WEBPACK_SOURCES := $(shell find web_src/js web_src/less -type f) $(FOMANTIC_DEST
 WEBPACK_CONFIGS := webpack.config.js
 WEBPACK_DEST := public/js/index.js public/css/index.css
 WEBPACK_DEST_ENTRIES := public/js public/css public/fonts public/img/webpack public/serviceworker.js
+WEBPACK_EVIDENCE := $(MAKE_EVIDENCE_DIR)/webpack
 
 BINDATA_DEST := modules/public/bindata.go modules/options/bindata.go modules/templates/bindata.go
 BINDATA_HASH := $(addsuffix .hash,$(BINDATA_DEST))
@@ -237,6 +238,21 @@ ifneq "$(TAGS)" "$(shell cat $(TAGS_EVIDENCE) 2>/dev/null)"
 TAGS_PREREQ := $(TAGS_EVIDENCE)
 endif
 
+ifeq ($(filter watch-frontend,$(MAKECMDGOALS)),watch-frontend)
+WEBPACK_MODE := development
+else
+WEBPACK_MODE := production
+endif
+
+.PHONY: $(WEBPACK_EVIDENCE)
+$(WEBPACK_EVIDENCE):
+	@mkdir -p $(MAKE_EVIDENCE_DIR)
+	@echo "$(WEBPACK_MODE)" > $(WEBPACK_EVIDENCE)
+
+ifneq "$(WEBPACK_MODE)" "$(shell cat $(WEBPACK_EVIDENCE) 2>/dev/null)"
+WEBPACK_PREREQ := $(WEBPACK_EVIDENCE)
+endif
+
 .PHONY: generate-swagger
 generate-swagger:
 	$(SWAGGER) generate spec -o './$(SWAGGER_SPEC)'
@@ -314,9 +330,9 @@ lint-frontend: node_modules
 lint-backend: golangci-lint revive vet
 
 .PHONY: watch-frontend
-watch-frontend: node-check $(FOMANTIC_DEST) node_modules
+watch-frontend: node-check $(FOMANTIC_DEST) node_modules | $(WEBPACK_PREREQ)
 	rm -rf $(WEBPACK_DEST_ENTRIES)
-	NODE_ENV=development npx webpack --hide-modules --display-entrypoints=false --watch --progress
+	NODE_ENV=$(WEBPACK_MODE) npx webpack --hide-modules --display-entrypoints=false --watch --progress
 
 .PHONY: watch-backend
 watch-backend: go-check
@@ -637,9 +653,9 @@ $(FOMANTIC_DEST): $(FOMANTIC_CONFIGS) | node_modules
 .PHONY: webpack
 webpack: $(WEBPACK_DEST)
 
-$(WEBPACK_DEST): $(WEBPACK_SOURCES) $(WEBPACK_CONFIGS) package-lock.json | node_modules
+$(WEBPACK_DEST): $(WEBPACK_SOURCES) $(WEBPACK_CONFIGS) $(WEBPACK_PREREQ) package-lock.json | node_modules
 	rm -rf $(WEBPACK_DEST_ENTRIES)
-	npx webpack --hide-modules --display-entrypoints=false
+	NODE_ENV=development npx webpack --hide-modules --display-entrypoints=false
 	@touch $(WEBPACK_DEST)
 
 .PHONY: svg
