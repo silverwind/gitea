@@ -1,20 +1,16 @@
-const fastGlob = require('fast-glob');
-const wrapAnsi = require('wrap-ansi');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const PostCSSPresetEnv = () => require('postcss-preset-env')({
-  features: {
-    'system-ui-font-family': false,
-  }
-});
-const TerserPlugin = require('terser-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const {statSync} = require('fs');
-const {resolve, parse} = require('path');
-const {LicenseWebpackPlugin} = require('license-webpack-plugin');
-const {SourceMapDevToolPlugin} = require('webpack');
+import fastGlob from 'fast-glob';
+import wrapAnsi from 'wrap-ansi';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import FixStyleOnlyEntriesPlugin from 'webpack-fix-style-only-entries';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
+import PostCSSPresetEnv from 'postcss-preset-env';
+import TerserPlugin from 'terser-webpack-plugin';
+import VueLoaderPlugin from 'vue-loader/lib/plugin';
+import {statSync} from 'fs';
+import {resolve, parse} from 'path';
+import {LicenseWebpackPlugin} from 'license-webpack-plugin';
+import {SourceMapDevToolPlugin} from 'webpack';
 
 const glob = (pattern) => fastGlob.sync(pattern, {cwd: __dirname, absolute: true});
 
@@ -41,7 +37,15 @@ const filterCssImport = (url, ...args) => {
   return true;
 };
 
-module.exports = {
+const postCSSPlugins = () => [
+  PostCSSPresetEnv({
+    features: {
+      'system-ui-font-family': false,
+    },
+  }),
+];
+
+export default {
   mode: isProduction ? 'production' : 'development',
   entry: {
     index: [
@@ -179,9 +183,7 @@ module.exports = {
           {
             loader: 'postcss-loader',
             options: {
-              plugins: () => [
-                PostCSSPresetEnv(),
-              ],
+              plugins: postCSSPlugins,
               sourceMap: true,
             },
           },
@@ -205,9 +207,7 @@ module.exports = {
           {
             loader: 'postcss-loader',
             options: {
-              plugins: () => [
-                PostCSSPresetEnv(),
-              ],
+              plugins: postCSSPlugins,
               sourceMap: true,
             },
           },
