@@ -18,16 +18,17 @@
         url('../fonts/noto-color-emoji/NotoColorEmoji.ttf') format('truetype');
 }
 
-@default-fonts: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" sans-serif;
+@default-fonts: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, Helvetica, Arial;
+@emoji-fonts: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 @monospaced-fonts: 'SF Mono', Consolas, Menlo, 'Liberation Mono', Monaco, 'Lucida Console';
 
 .override-fonts(@fonts) {
     textarea {
-        font-family: @fonts;
+        font-family: @fonts, sans-serif, @emoji-fonts;
     }
 
     .markdown:not(code) {
-        font-family: @fonts;
+        font-family: @fonts, sans-serif, @emoji-fonts;
     }
 
     /* We're going to just override the semantic fonts here */
@@ -36,7 +37,7 @@
     h3,
     h4,
     h5 {
-        font-family: @fonts;
+        font-family: @fonts, sans-serif, @emoji-fonts;
     }
 
     .ui.accordion .title:not(.ui),
@@ -75,7 +76,7 @@
     .ui.steps .step .title,
     .ui.text.container,
     .ui.language > .menu > .item& {
-        font-family: @fonts;
+        font-family: @fonts, sans-serif, @emoji-fonts;
     }
 }
 
