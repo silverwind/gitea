@@ -18,6 +18,7 @@
     "css-minimizer-webpack-plugin": "1.1.1",
     "dropzone": "5.7.2",
     "escape-goat": "3.0.0",
+    "esm": "3.2.25",
     "fast-glob": "3.2.4",
     "file-loader": "6.0.0",
     "fomantic-ui": "2.8.6",
@@ -51,7 +52,6 @@
     "wrap-ansi": "7.0.0"
   },
   "devDependencies": {
-    "@babel/register": "7.10.5",
     "eslint": "7.6.0",
     "eslint-plugin-import": "2.22.0",
     "eslint-plugin-unicorn": "21.0.0",
@@ -64,10 +64,5 @@
     "defaults",
     "not ie > 0",
     "not ie_mob > 0"
-  ],
-  "babel": {
-    "presets": [
-      "@babel/preset-env"
-    ]
-  }
+  ]
 }
