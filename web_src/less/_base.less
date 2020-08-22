@@ -19,16 +19,16 @@
 }
 
 @default-fonts: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, Helvetica, Arial;
-@emoji-fonts: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+@emoji-fonts: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla";
 @monospaced-fonts: 'SF Mono', Consolas, Menlo, 'Liberation Mono', Monaco, 'Lucida Console';
 
 .override-fonts(@fonts) {
     textarea {
-        font-family: @fonts, sans-serif, @emoji-fonts;
+        font-family: @fonts, @emoji-fonts, sans-serif;
     }
 
     .markdown:not(code) {
-        font-family: @fonts, sans-serif, @emoji-fonts;
+        font-family: @fonts, @emoji-fonts, sans-serif;
     }
 
     /* We're going to just override the semantic fonts here */
@@ -37,7 +37,7 @@
     h3,
     h4,
     h5 {
-        font-family: @fonts, sans-serif, @emoji-fonts;
+        font-family: @fonts, @emoji-fonts, sans-serif;
     }
 
     .ui.accordion .title:not(.ui),
@@ -76,7 +76,7 @@
     .ui.steps .step .title,
     .ui.text.container,
     .ui.language > .menu > .item& {
-        font-family: @fonts, sans-serif, @emoji-fonts;
+        font-family: @fonts, @emoji-fonts, sans-serif;
     }
 }
 
