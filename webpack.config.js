@@ -2,7 +2,6 @@ const fastGlob = require('fast-glob');
 const wrapAnsi = require('wrap-ansi');
 const AddAssetPlugin = require('add-asset-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const FixStyleOnlyEntriesPlugin = require('webpack-fix-style-only-entries');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
@@ -73,7 +72,6 @@ module.exports = {
     minimize: isProduction,
     minimizer: [
       new TerserPlugin({
-        sourceMap: true,
         extractComments: false,
         terserOptions: {
           output: {
@@ -96,7 +94,7 @@ module.exports = {
       }),
     ],
     splitChunks: {
-      chunks: 'async',
+      chunks: 'all',
       name: (_, chunks) => chunks.map((item) => item.name).join('-'),
     },
   },
@@ -273,11 +271,6 @@ module.exports = {
   },
   plugins: [
     new VueLoaderPlugin(),
-    // avoid generating useless js output files for css--only chunks
-    new FixStyleOnlyEntriesPlugin({
-      extensions: ['less', 'scss', 'css'],
-      silent: true,
-    }),
     new MiniCssExtractPlugin({
       filename: 'css/[name].css',
       chunkFilename: 'css/[name].css',
