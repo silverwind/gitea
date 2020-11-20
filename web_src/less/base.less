@@ -952,7 +952,7 @@ footer {
   padding-top: 15px !important;
   margin-top: -15px !important;
   margin-bottom: 15px !important;
-  background: #fafafa;
+  background: var(--color-body);
   border-width: 1px !important;
 }
 
@@ -984,7 +984,7 @@ footer {
     position: absolute;
     margin-top: -15px;
     display: block;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 100%);
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), var(--color-body) 100%);
     content: ' ';
     right: 0;
     height: 53px;
@@ -1289,6 +1289,14 @@ i.icon.centerlock {
 }
 
 .svg {
+  display: inline-block;
+  vertical-align: text-top;
+  fill: currentColor;
+
+  .middle & {
+    vertical-align: middle;
+  }
+
   span.green & {
     color: var(--color-green);
   }
