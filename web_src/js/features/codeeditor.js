@@ -3,6 +3,22 @@ import {basename, extname, isObject, isDarkTheme} from '../utils.js';
 const languagesByFilename = {};
 const languagesByExt = {};
 
+const defaultEditorOpts = {
+  minimap: {
+    enabled: false,
+  },
+  renderLineHighlight: 'all',
+  renderLineHighlightOnlyWhenFocus: true,
+  scrollBeyondLastLine: false,
+  renderWhitespace: 'none',
+  overviewRulerLanes: 0,
+  wordWrap: 'on',
+  scrollbar: {
+    horizontalScrollbarSize: 6,
+    verticalScrollbarSize: 6,
+  },
+};
+
 function getEditorconfig(input) {
   try {
     return JSON.parse(input.dataset.editorconfig);
@@ -55,6 +71,7 @@ export async function createMonaco(textarea, filename, editorOpts) {
     value: textarea.value,
     theme: isDarkTheme() ? 'vs-dark' : 'vs',
     language,
+    ...defaultEditorOpts,
     ...other,
   });
 
