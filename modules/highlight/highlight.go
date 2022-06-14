@@ -204,7 +204,7 @@ func File(numLines int, fileName, language string, code []byte) []string {
 		content = strings.TrimPrefix(content, `</span></span>`)
 
 		// if there's no final newline, closing tags will be on last line
-		if (!finalNewLine && i == numLines - 1) {
+		if !finalNewLine && i == numLines-1 {
 			content = strings.TrimSuffix(content, `</span></span>`)
 		}
 
