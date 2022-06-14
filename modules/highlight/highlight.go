@@ -196,18 +196,25 @@ func File(numLines int, fileName, language string, code []byte) []string {
 	}
 
 	m := make([]string, 0, numLines)
-	for _, v := range strings.SplitN(htmlbuf.String(), "\n", numLines) {
+	for i, v := range strings.SplitN(htmlbuf.String(), "\n", numLines) {
 		content := string(v)
+
+		// remove useless wrapper nodes that are always present
+		content = strings.Replace(content, "<span class=\"line\"><span class=\"cl\">", "", 1)
+		content = strings.TrimPrefix(content, `</span></span>`)
+
+		// if there's no final newline, closing tags will be on last line
+		if (!finalNewLine && i == numLines - 1) {
+			content = strings.TrimSuffix(content, `</span></span>`)
+		}
+
 		// need to keep lines that are only \n so copy/paste works properly in browser
 		if content == "" {
 			content = "\n"
 		} else if content == `</span><span class="w">` {
-			content += "\n</span>"
-		} else if content == `</span></span><span class="line"><span class="cl">` {
 			content += "\n"
 		}
-		content = strings.TrimSuffix(content, `<span class="w">`)
-		content = strings.TrimPrefix(content, `</span>`)
+
 		m = append(m, content)
 	}
 	if finalNewLine {
