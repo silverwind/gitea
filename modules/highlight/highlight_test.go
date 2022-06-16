@@ -8,100 +8,116 @@ import (
 	"strings"
 	"testing"
 
-	"code.gitea.io/gitea/modules/setting"
-	"code.gitea.io/gitea/modules/util"
-
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/ini.v1"
 )
 
 func TestFile(t *testing.T) {
-	setting.Cfg = ini.Empty()
+
 	tests := []struct {
-		name     string
-		numLines int
-		fileName string
-		code     string
-		want     string
+		name string
+		code string
+		want []string
 	}{
 		{
-			name:     ".drone.yml",
-			numLines: 12,
-			fileName: ".drone.yml",
-			code: util.Dedent(`
-				kind: pipeline
-				name: default
-
-				steps:
-				- name: test
-					image: golang:1.13
-					environment:
-						GOPROXY: https://goproxy.cn
-					commands:
-					- go get -u
-					- go build -v
-					- go test -v -race -coverprofile=coverage.txt -covermode=atomic
-			`),
-			want: util.Dedent(`
-				<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">pipeline</span><span class="w">
-				</span><span class="w"></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
-				</span><span class="w">
-
-				</span><span class="w"></span><span class="nt">steps</span><span class="p">:</span><span class="w">
-				</span><span class="w"></span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">test</span><span class="w">
-				</span><span class="w">	</span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">golang:1.13</span><span class="w">
-				</span><span class="w">	</span><span class="nt">environment</span><span class="p">:</span><span class="w">
-				</span><span class="w"></span><span class="w">		</span><span class="nt">GOPROXY</span><span class="p">:</span><span class="w"> </span><span class="l">https://goproxy.cn</span><span class="w">
-				</span><span class="w">	</span><span class="nt">commands</span><span class="p">:</span><span class="w">
-				</span><span class="w"></span><span class="w">	</span>- <span class="l">go get -u</span><span class="w">
-				</span><span class="w">	</span>- <span class="l">go build -v</span><span class="w">
-				</span><span class="w">	</span>- <span class="l">go test -v -race -coverprofile=coverage.txt -covermode=atomic</span>
-			`),
+			name: "empty.py",
+			code: "",
+			want: []string{""},
 		},
 		{
-			name:     ".drone.yml - trailing space",
-			numLines: 13,
-			fileName: ".drone.yml",
-			code: strings.Replace(util.Dedent(`
-				kind: pipeline
-				name: default
+			name: "eol-no.py",
+			code: "a=1",
+			want: []string{`<span class="n">a</span><span class="o">=</span><span class="mi">1</span>`},
+		},
+		{
+			name: "eol-newline1.py",
+			code: "a=1\n",
+			want: []string{
+				`<span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;`,
+			},
+		},
+		{
+			name: "eol-newline2.py",
+			code: "a=1\n\n",
+			want: []string{
+				`<span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;`,
+				`&#10;`,
+			},
+		},
+		{
+			name: "empty-line.py",
+			code: strings.TrimSpace(`
+a=1
 
-				steps:
-				- name: test
-					image: golang:1.13
-					environment:
-						GOPROXY: https://goproxy.cn
-					commands:
-					- go get -u
-					- go build -v
-					- go test -v -race -coverprofile=coverage.txt -covermode=atomic
-			`)+"\n", "name: default", "name: default  ", 1),
-			want: util.Dedent(`
-				<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">pipeline</span><span class="w">
-				</span><span class="w"></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">default  </span><span class="w">
-				</span><span class="w">
-
-				</span><span class="w"></span><span class="nt">steps</span><span class="p">:</span><span class="w">
-				</span><span class="w"></span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">test</span><span class="w">
-				</span><span class="w">	</span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">golang:1.13</span><span class="w">
-				</span><span class="w">	</span><span class="nt">environment</span><span class="p">:</span><span class="w">
-				</span><span class="w"></span><span class="w">		</span><span class="nt">GOPROXY</span><span class="p">:</span><span class="w"> </span><span class="l">https://goproxy.cn</span><span class="w">
-				</span><span class="w">	</span><span class="nt">commands</span><span class="p">:</span><span class="w">
-				</span><span class="w"></span><span class="w">	</span>- <span class="l">go get -u</span><span class="w">
-				</span><span class="w">	</span>- <span class="l">go build -v</span><span class="w">
-				</span><span class="w">	</span>- <span class="l">go test -v -race -coverprofile=coverage.txt -covermode=atomic</span><span class="w">
-				</span>
-				<span class="w">
-				</span>
+b=''
 			`),
+			want: []string{
+				`<span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;`,
+				`&#10;`,
+				`<span class="n">b</span><span class="o">=</span><span class="sa"></span><span class="s1">&#39;</span><span class="s1">&#39;</span>`,
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := strings.Join(File(tt.numLines, tt.fileName, "", []byte(tt.code)), "\n")
-			assert.Equal(t, tt.want, got)
-			assert.Equal(t, strings.Count(got, "<span"), strings.Count(got, "</span>"))
+			lines, err := File(tt.name, "", []byte(tt.code))
+			assert.NoError(t, err)
+			assert.EqualValues(t, tt.want, lines)
+		})
+	}
+}
+
+func TestPlainText(t *testing.T) {
+
+	tests := []struct {
+		name string
+		code string
+		want []string
+	}{
+		{
+			name: "empty.py",
+			code: "",
+			want: []string{""},
+		},
+		{
+			name: "eol-no.py",
+			code: "a=1",
+			want: []string{`a=1`},
+		},
+		{
+			name: "eol-newline1.py",
+			code: "a=1\n",
+			want: []string{
+				`a=1&#10;`,
+			},
+		},
+		{
+			name: "eol-newline2.py",
+			code: "a=1\n\n",
+			want: []string{
+				`a=1&#10;`,
+				`&#10;`,
+			},
+		},
+		{
+			name: "empty-line.py",
+			code: strings.TrimSpace(`
+a=1
+
+b=''
+			`),
+			want: []string{
+				`a=1&#10;`,
+				`&#10;`,
+				`b=&#39;&#39;`,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			lines := PlainText([]byte(tt.code))
+			assert.EqualValues(t, tt.want, lines)
 		})
 	}
 }

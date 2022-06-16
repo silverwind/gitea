@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"fmt"
 	gohtml "html"
+	"io"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -26,7 +27,7 @@ import (
 )
 
 // don't index files larger than this many bytes for performance purposes
-const sizeLimit = 1000000
+const sizeLimit = 1024 * 1024
 
 var (
 	// For custom user mapping
@@ -40,11 +41,12 @@ var (
 // NewContext loads custom highlight map from local config
 func NewContext() {
 	once.Do(func() {
-		keys := setting.Cfg.Section("highlight.mapping").Keys()
-		for i := range keys {
-			highlightMapping[keys[i].Name()] = keys[i].Value()
+		if setting.Cfg != nil {
+			keys := setting.Cfg.Section("highlight.mapping").Keys()
+			for i := range keys {
+				highlightMapping[keys[i].Name()] = keys[i].Value()
+			}
 		}
-
 		// The size 512 is simply a conservative rule of thumb
 		c, err := lru.New2Q(512)
 		if err != nil {
@@ -132,30 +134,26 @@ func CodeFromLexer(lexer chroma.Lexer, code string) string {
 	return strings.TrimSuffix(htmlbuf.String(), "\n")
 }
 
-// File returns a slice of chroma syntax highlighted lines of code
-func File(numLines int, fileName, language string, code []byte) []string {
+// File returns a slice of chroma syntax highlighted HTML lines of code
+func File(fileName, language string, code []byte) ([]string, error) {
 	NewContext()
 
 	if len(code) > sizeLimit {
-		return plainText(string(code), numLines)
+		return PlainText(code), nil
 	}
+
 	formatter := html.New(html.WithClasses(true),
 		html.WithLineNumbers(false),
 		html.PreventSurroundingPre(true),
 	)
 
-	if formatter == nil {
-		log.Error("Couldn't create chroma formatter")
-		return plainText(string(code), numLines)
-	}
-
-	htmlbuf := bytes.Buffer{}
-	htmlw := bufio.NewWriter(&htmlbuf)
+	htmlBuf := bytes.Buffer{}
+	htmlWriter := bufio.NewWriter(&htmlBuf)
 
 	var lexer chroma.Lexer
 
 	// provided language overrides everything
-	if len(language) > 0 {
+	if language != "" {
 		lexer = lexers.Get(language)
 	}
 
@@ -166,9 +164,9 @@ func File(numLines int, fileName, language string, code []byte) []string {
 	}
 
 	if lexer == nil {
-		language := analyze.GetCodeLanguage(fileName, code)
+		guessLanguage := analyze.GetCodeLanguage(fileName, code)
 
-		lexer = lexers.Get(language)
+		lexer = lexers.Get(guessLanguage)
 		if lexer == nil {
 			lexer = lexers.Match(fileName)
 			if lexer == nil {
@@ -179,61 +177,90 @@ func File(numLines int, fileName, language string, code []byte) []string {
 
 	iterator, err := lexer.Tokenise(nil, string(code))
 	if err != nil {
-		log.Error("Can't tokenize code: %v", err)
-		return plainText(string(code), numLines)
+		return nil, fmt.Errorf("can't tokenize code: %w", err)
 	}
 
-	err = formatter.Format(htmlw, styles.GitHub, iterator)
+	err = formatter.Format(htmlWriter, styles.GitHub, iterator)
 	if err != nil {
-		log.Error("Can't format code: %v", err)
-		return plainText(string(code), numLines)
+		return nil, fmt.Errorf("can't format code: %w", err)
 	}
 
-	htmlw.Flush()
-	finalNewLine := false
-	if len(code) > 0 {
-		finalNewLine = code[len(code)-1] == '\n'
-	}
+	_ = htmlWriter.Flush()
 
-	m := make([]string, 0, numLines)
-	for i, v := range strings.SplitN(htmlbuf.String(), "\n", numLines) {
-		content := string(v)
+	m := make([]string, 0, bytes.Count(code, []byte{'\n'})+1)
 
-		// remove useless wrapper nodes that are always present
-		content = strings.Replace(content, "<span class=\"line\"><span class=\"cl\">", "", 1)
-		content = strings.TrimPrefix(content, `</span></span>`)
-
-		// if there's no final newline, closing tags will be on last line
-		if !finalNewLine && i == numLines-1 {
-			content = strings.TrimSuffix(content, `</span></span>`)
+	htmlStr := htmlBuf.String()
+	line := strings.Builder{}
+	insideLine := 0 // every <span class="cl"> makes it increase one level, every closed <span class="cl"> makes it decrease one level
+	tagStack := make([]string, 0, 4)
+	for len(htmlStr) > 0 {
+		pos1 := strings.IndexByte(htmlStr, '<')
+		pos2 := strings.IndexByte(htmlStr, '>')
+		if pos1 == -1 || pos2 == -1 || pos1 > pos2 {
+			break
 		}
-
-		// need to keep lines that are only \n so copy/paste works properly in browser
-		if content == "" {
-			content = "\n"
-		} else if content == `</span><span class="w">` {
-			content += "\n"
+		tag := htmlStr[pos1 : pos2+1]
+		if insideLine > 0 {
+			line.WriteString(htmlStr[:pos1])
 		}
-
-		m = append(m, content)
+		if tag[1] == '/' {
+			if len(tagStack) == 0 {
+				return nil, fmt.Errorf("can't find matched tag: %q", tag)
+			}
+			popped := tagStack[len(tagStack)-1]
+			tagStack = tagStack[:len(tagStack)-1]
+			if popped == `<span class="cl">` {
+				insideLine--
+				lineStr := line.String()
+				if lineStr != "" && lineStr[len(lineStr)-1] == '\n' {
+					lineStr = lineStr[:len(lineStr)-1] + "&#10;"
+				}
+				m = append(m, lineStr)
+				line = strings.Builder{}
+			}
+			if insideLine > 0 {
+				line.WriteString(tag)
+			}
+		} else {
+			tagStack = append(tagStack, tag)
+			if insideLine > 0 {
+				line.WriteString(tag)
+			}
+			if tag == `<span class="cl">` {
+				insideLine++
+			}
+		}
+		htmlStr = htmlStr[pos2+1:]
 	}
-	if finalNewLine {
-		m = append(m, "<span class=\"w\">\n</span>")
+
+	if len(m) == 0 {
+		m = append(m, "") // maybe we do not want to return 0 lines
 	}
 
-	return m
+	return m, nil
 }
 
-// return unhiglighted map
-func plainText(code string, numLines int) []string {
-	m := make([]string, 0, numLines)
-	for _, v := range strings.SplitN(string(code), "\n", numLines) {
-		content := string(v)
-		// need to keep lines that are only \n so copy/paste works properly in browser
-		if content == "" {
-			content = "\n"
+// PlainText returns non-highlighted HTML for code
+func PlainText(code []byte) []string {
+	r := bufio.NewReader(bytes.NewReader(code))
+	m := make([]string, 0, bytes.Count(code, []byte{'\n'})+1)
+	for {
+		content, err := r.ReadString('\n')
+		if err != nil && err != io.EOF {
+			log.Error("failed to read string from buffer: %v", err)
+			break
 		}
-		m = append(m, gohtml.EscapeString(content))
+		if content == "" && err == io.EOF {
+			break
+		}
+		s := gohtml.EscapeString(content)
+		s = strings.ReplaceAll(s, "\n", "&#10;")
+		m = append(m, s)
 	}
+
+	if len(m) == 0 {
+		m = append(m, "") // maybe we do not want to return 0 lines
+	}
+
 	return m
 }
