@@ -54,16 +54,22 @@ func TestFile(t *testing.T) {
 			},
 		},
 		{
-			name: "empty-line.py",
-			code: strings.TrimSpace(`
-a=1
+			name: "empty-line-with-space.py",
+			code: strings.ReplaceAll(strings.TrimSpace(`
+def:
+    a=1
 
 b=''
-			`),
+{space}
+c=2
+			`), "{space}", "    "),
 			want: []string{
-				`<span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;`,
+				`<span class="n">def</span><span class="p">:</span>&#10;`,
+				`    <span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;`,
 				`&#10;`,
-				`<span class="n">b</span><span class="o">=</span><span class="sa"></span><span class="s1">&#39;</span><span class="s1">&#39;</span>`,
+				`<span class="n">b</span><span class="o">=</span><span class="sa"></span><span class="s1">&#39;</span><span class="s1">&#39;</span>&#10;`,
+				`    &#10;`,
+				`<span class="n">c</span><span class="o">=</span><span class="mi">2</span>`,
 			},
 		},
 	}
@@ -72,7 +78,7 @@ b=''
 		t.Run(tt.name, func(t *testing.T) {
 			lines, err := File(tt.name, "", []byte(tt.code))
 			assert.NoError(t, err)
-			assert.EqualValues(t, tt.want, lines)
+			assert.EqualValues(t, strings.Join(tt.want, "\n"), strings.Join(lines, "\n"))
 		})
 	}
 }
@@ -116,23 +122,22 @@ func TestPlainText(t *testing.T) {
 		},
 		{
 			name: "empty-line.py",
-			code: strings.TrimSpace(`
-a=1
+			code: strings.ReplaceAll(strings.TrimSpace(`
+def:
+    a=1
 
 b=''
-			`),
-			want: []string{
-				`a=1&#10;`,
-				`&#10;`,
-				`b=&#39;&#39;`,
-			},
+{space}
+c=2
+			`), "{space}", "    "),
+			want: strings.Split("def:&#10;\n    a=1&#10;\n&#10;\nb=&#39;&#39;&#10;\n    &#10;\nc=2", "\n"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			lines := PlainText([]byte(tt.code))
-			assert.EqualValues(t, tt.want, lines)
+			assert.EqualValues(t, strings.Join(tt.want, "\n"), strings.Join(lines, "\n"))
 		})
 	}
 }
