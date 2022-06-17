@@ -11,6 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func lines(s string) []string {
+	return strings.Split(strings.TrimSpace(s), "\n")
+}
+
 func TestFile(t *testing.T) {
 
 	tests := []struct {
@@ -63,14 +67,14 @@ b=''
 {space}
 c=2
 			`), "{space}", "    "),
-			want: []string{
-				`<span class="n">def</span><span class="p">:</span>&#10;`,
-				`    <span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;`,
-				`&#10;`,
-				`<span class="n">b</span><span class="o">=</span><span class="sa"></span><span class="s1">&#39;</span><span class="s1">&#39;</span>&#10;`,
-				`    &#10;`,
-				`<span class="n">c</span><span class="o">=</span><span class="mi">2</span>`,
-			},
+			want: lines(`
+<span class="n">def</span><span class="p">:</span>&#10;
+    <span class="n">a</span><span class="o">=</span><span class="mi">1</span>&#10;
+&#10;
+<span class="n">b</span><span class="o">=</span><span class="sa"></span><span class="s1">&#39;</span><span class="s1">&#39;</span>&#10;
+    &#10;
+<span class="n">c</span><span class="o">=</span><span class="mi">2</span>`,
+			),
 		},
 	}
 
@@ -121,7 +125,7 @@ func TestPlainText(t *testing.T) {
 			},
 		},
 		{
-			name: "empty-line.py",
+			name: "empty-line-with-space.py",
 			code: strings.ReplaceAll(strings.TrimSpace(`
 def:
     a=1
