@@ -24,6 +24,16 @@ func TestFile(t *testing.T) {
 			want: []string{""},
 		},
 		{
+			name: "tags.txt",
+			code: "<>",
+			want: []string{"&lt;&gt;"},
+		},
+		{
+			name: "tags.py",
+			code: "<>",
+			want: []string{`<span class="o">&lt;</span><span class="o">&gt;</span>`},
+		},
+		{
 			name: "eol-no.py",
 			code: "a=1",
 			want: []string{`<span class="n">a</span><span class="o">=</span><span class="mi">1</span>`},
@@ -78,6 +88,11 @@ func TestPlainText(t *testing.T) {
 			name: "empty.py",
 			code: "",
 			want: []string{""},
+		},
+		{
+			name: "tags.py",
+			code: "<>",
+			want: []string{"&lt;&gt;"},
 		},
 		{
 			name: "eol-no.py",
