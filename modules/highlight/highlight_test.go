@@ -80,9 +80,12 @@ c=2
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lines, err := File(tt.name, "", []byte(tt.code))
+			out, err := File(tt.name, "", []byte(tt.code))
 			assert.NoError(t, err)
-			assert.EqualValues(t, strings.Join(tt.want, "\n"), strings.Join(lines, "\n"))
+			expected := strings.Join(tt.want, "\n")
+			actual := strings.Join(out, "\n")
+			assert.Equal(t, strings.Count(actual, "<span"), strings.Count(actual, "</span>"))
+			assert.EqualValues(t, expected, actual)
 		})
 	}
 }
@@ -134,14 +137,22 @@ b=''
 {space}
 c=2
 			`), "{space}", "    "),
-			want: strings.Split("def:&#10;\n    a=1&#10;\n&#10;\nb=&#39;&#39;&#10;\n    &#10;\nc=2", "\n"),
+			want: lines(`
+def:&#10;
+    a=1&#10;
+&#10;
+b=&#39;&#39;&#10;
+    &#10;
+c=2`),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			lines := PlainText([]byte(tt.code))
-			assert.EqualValues(t, strings.Join(tt.want, "\n"), strings.Join(lines, "\n"))
+			out := PlainText([]byte(tt.code))
+			expected := strings.Join(tt.want, "\n")
+			actual := strings.Join(out, "\n")
+			assert.EqualValues(t, expected, actual)
 		})
 	}
 }
