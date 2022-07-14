@@ -29,6 +29,12 @@ import (
 // don't index files larger than this many bytes for performance purposes
 const sizeLimit = 1024 * 1024
 
+// newLineInHTML is the HTML entity to be used for newline in HTML content, if it's empty then the original "\n" is kept
+// this option is here for 2 purposes:
+// (1) make it easier to switch back to the original "\n" if there is any compatibility issue in the future
+// (2) make it clear to do tests: "&#10;" is the real newline for rendering, '\n' is ignorable/trim-able and could be ignored
+var newLineInHTML = "&#10;"
+
 var (
 	// For custom user mapping
 	highlightMapping = map[string]string{}
@@ -60,7 +66,7 @@ func NewContext() {
 func Code(fileName, language, code string) string {
 	NewContext()
 
-	// diff view newline will be passed as empty, change to literal \n so it can be copied
+	// diff view newline will be passed as empty, change to literal '\n' so it can be copied
 	// preserve literal newline in blame view
 	if code == "" || code == "\n" {
 		return "\n"
@@ -116,7 +122,7 @@ func CodeFromLexer(lexer chroma.Lexer, code string) string {
 	htmlbuf := bytes.Buffer{}
 	htmlw := bufio.NewWriter(&htmlbuf)
 
-	iterator, err := lexer.Tokenise(nil, string(code))
+	iterator, err := lexer.Tokenise(nil, code)
 	if err != nil {
 		log.Error("Can't tokenize code: %v", err)
 		return code
@@ -128,9 +134,9 @@ func CodeFromLexer(lexer chroma.Lexer, code string) string {
 		return code
 	}
 
-	htmlw.Flush()
+	_ = htmlw.Flush()
 	// Chroma will add newlines for certain lexers in order to highlight them properly
-	// Once highlighted, strip them here so they don't cause copy/paste trouble in HTML output
+	// Once highlighted, strip them here, so they don't cause copy/paste trouble in HTML output
 	return strings.TrimSuffix(htmlbuf.String(), "\n")
 }
 
@@ -212,8 +218,8 @@ func File(fileName, language string, code []byte) ([]string, error) {
 			if popped == `<span class="cl">` {
 				insideLine--
 				lineStr := line.String()
-				if lineStr != "" && lineStr[len(lineStr)-1] == '\n' {
-					lineStr = lineStr[:len(lineStr)-1] + "&#10;"
+				if newLineInHTML != "" && lineStr != "" && lineStr[len(lineStr)-1] == '\n' {
+					lineStr = lineStr[:len(lineStr)-1] + newLineInHTML
 				}
 				m = append(m, lineStr)
 				line = strings.Builder{}
@@ -254,7 +260,9 @@ func PlainText(code []byte) []string {
 			break
 		}
 		s := gohtml.EscapeString(content)
-		s = strings.ReplaceAll(s, "\n", "&#10;")
+		if newLineInHTML != "" && s != "" && s[len(s)-1] == '\n' {
+			s = s[:len(s)-1] + newLineInHTML
+		}
 		m = append(m, s)
 	}
 
