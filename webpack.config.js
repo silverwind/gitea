@@ -109,7 +109,17 @@ export default {
       {
         test: /\.vue$/,
         exclude: /node_modules/,
-        loader: 'vue-loader',
+        use: [
+          {
+            loader: 'vue-loader',
+            options: {
+              productionMode: isProduction,
+              compilerOptions: {
+                comments: !isProduction,
+              },
+            },
+          },
+        ],
       },
       {
         test: /\.js$/,
