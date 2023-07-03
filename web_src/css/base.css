@@ -379,6 +379,7 @@ progress::-moz-progress-bar {
   display: inline-block;
   vertical-align: text-top;
   fill: currentcolor;
+  flex-shrink: 0; /* prevent shrinking in space-starved flexbox */
 }
 
 .middle .svg {
