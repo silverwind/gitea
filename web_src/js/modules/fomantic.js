@@ -59,6 +59,31 @@ export function initGiteaFomantic() {
     return ret;
   };
 
+  // stand-in for removed dimmer module
+  $.fn.dimmer = function (arg, arg2) {
+    let dimmer;
+
+    console.log(arg, arg2);
+    if (arg?.dimmerName) {
+      dimmer = $(`<div class="ui dimmer ${arg.dimmerName}"></div>`);
+      return this.$dimmer;
+    } else if (arg === "get dimmer") {
+      console.log("reee", this.$dimmer);
+      return this.$dimmer;
+    }
+    return {
+      dimmer: (arg, arg2) => {
+        console.log("i", arg, arg2);
+        if (arg === 'add content') {
+          $(arg2).detach().appendTo(this.$dimmer);
+        }
+      },
+      getDimmer: () => {
+        return this.$dimmer;
+      },
+    };
+  };
+
   initFomanticApiPatch();
 
   // Use the patches to improve accessibility, these patches are designed to be as independent as possible, make it easy to modify or remove in the future.
