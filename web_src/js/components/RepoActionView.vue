@@ -5,6 +5,7 @@ import {createApp} from 'vue';
 import {toggleElem} from '../utils/dom.js';
 import {getCurrentLocale} from '../utils.js';
 import {renderAnsi} from '../render/ansi.js';
+import {isNetworkError} from '../modules/fetch.js';
 
 const {csrfToken} = window.config;
 
@@ -244,11 +245,14 @@ const sfc = {
           clearInterval(this.intervalID);
           this.intervalID = null;
         }
+      } catch (err) {
+        if (!isNetworkError(err.message)) {
+          throw err;
+        }
       } finally {
         this.loading = false;
       }
     },
-
 
     fetchPost(url, body) {
       return fetch(url, {
