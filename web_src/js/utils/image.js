@@ -3,7 +3,6 @@ export async function pngChunks(blob) {
   const chunks = [];
   if (uint8arr.length < 12) return chunks;
   const view = new DataView(uint8arr.buffer);
-  if (view.getBigUint64(0) !== 9894494448401390090n) return chunks;
 
   const decoder = new TextDecoder();
   let index = 8;
