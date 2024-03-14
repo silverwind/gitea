@@ -12,6 +12,7 @@ plugins:
   - "@eslint-community/eslint-plugin-eslint-comments"
   - "@stylistic/eslint-plugin-js"
   - eslint-plugin-array-func
+  - eslint-plugin-compat
   - eslint-plugin-github
   - eslint-plugin-i
   - eslint-plugin-jquery
@@ -195,6 +196,7 @@ rules:
   camelcase: [0]
   capitalized-comments: [0]
   class-methods-use-this: [0]
+  compat/compat: [2]
   complexity: [0]
   consistent-return: [0]
   consistent-this: [0]
