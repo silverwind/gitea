@@ -73,6 +73,7 @@ jobs:
               - "Makefile"
 
             templates:
+              - "tools/package-lock.json"
               - "tools/lint-templates-*.js"
               - "templates/**/*.tmpl"
               - "pyproject.toml"

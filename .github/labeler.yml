@@ -60,6 +60,8 @@ modifies/dependencies:
       - any-glob-to-any-file:
           - "package.json"
           - "package-lock.json"
+          - "tools/package.json"
+          - "tools/package-lock.json"
           - "pyproject.toml"
           - "poetry.lock"
           - "go.mod"

@@ -39,7 +39,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
       - run: pip install poetry
       - run: make deps-py
       - run: make deps-frontend
@@ -68,7 +70,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
       - run: make deps-frontend
       - run: make lint-swagger
 
@@ -139,7 +143,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
       - run: make deps-frontend
       - run: make lint-frontend
       - run: make checks-frontend
@@ -188,7 +194,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
       - run: make deps-frontend
       - run: make lint-md
       - run: make docs

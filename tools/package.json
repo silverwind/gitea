@@ -1,0 +1,10 @@
+{
+  "name": "gitea-tools",
+  "type": "module",
+  "dependencies": {
+    "fabric": "6.0.0-rc1",
+    "fast-glob": "3.3.2",
+    "imagemin-zopfli": "7.0.0",
+    "svgo": "3.2.0"
+  }
+}

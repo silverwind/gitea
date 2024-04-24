@@ -46,6 +46,9 @@ cpu.out
 *.log
 *.log.*.gz
 
+node_modules
+.venv
+
 /gitea
 /gitea-vet
 /debug
@@ -68,8 +71,6 @@ cpu.out
 /tests/e2e/test-snapshots
 /tests/*.ini
 /tests/**/*.git/**/*.sample
-/node_modules
-/.venv
 /yarn.lock
 /yarn-error.log
 /npm-debug.log*
@@ -78,7 +79,6 @@ cpu.out
 /public/assets/fonts
 /public/assets/licenses.txt
 /vendor
-/web_src/fomantic/node_modules
 /web_src/fomantic/build/*
 !/web_src/fomantic/build/semantic.js
 !/web_src/fomantic/build/semantic.css

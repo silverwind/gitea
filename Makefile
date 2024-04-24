@@ -138,7 +138,7 @@ TAGS_EVIDENCE := $(MAKE_EVIDENCE_DIR)/tags
 
 TEST_TAGS ?= sqlite sqlite_unlock_notify
 
-TAR_EXCLUDES := .git data indexers queues log node_modules $(EXECUTABLE) $(FOMANTIC_WORK_DIR)/node_modules $(DIST) $(MAKE_EVIDENCE_DIR) $(AIR_TMP_DIR) $(GO_LICENSE_TMP_DIR)
+TAR_EXCLUDES := $(EXECUTABLE) .git data indexers queues log node_modules tools/node_modules $(FOMANTIC_WORK_DIR)/node_modules $(DIST) $(MAKE_EVIDENCE_DIR) $(AIR_TMP_DIR) $(GO_LICENSE_TMP_DIR)
 
 GO_DIRS := build cmd models modules routers services tests
 WEB_DIRS := web_src/js web_src/css
@@ -278,7 +278,7 @@ node-check:
 
 .PHONY: clean-all
 clean-all: clean
-	rm -rf $(WEBPACK_DEST_ENTRIES) node_modules
+	rm -rf $(WEBPACK_DEST_ENTRIES) node_modules tools/node_modules
 
 .PHONY: clean
 clean:
@@ -433,7 +433,7 @@ lint-actions:
 	$(GO) run $(ACTIONLINT_PACKAGE)
 
 .PHONY: lint-templates
-lint-templates: .venv node_modules
+lint-templates: .venv tools/node_modules
 	@node tools/lint-templates-svg.js
 	@poetry run djlint $(shell find templates -type f -iname '*.tmpl')
 
@@ -869,6 +869,10 @@ node_modules: package-lock.json
 	npm install --no-save
 	@touch node_modules
 
+tools/node_modules: tools/package-lock.json
+	cd tools && npm install --no-save
+	@touch tools/node_modules
+
 .venv: poetry.lock
 	poetry install --no-root
 	@touch .venv
@@ -878,10 +882,11 @@ update: update-js update-py
 
 .PHONY: update-js
 update-js: node-check | node_modules
-	npx updates -u -f package.json
-	rm -rf node_modules package-lock.json
+	npx updates -u -f package.json tools/package.json
+	rm -rf node_modules package-lock.json tools/package-lock.json
 	npm install --package-lock
-	@touch node_modules
+	cd tools && npm install --package-lock
+	@touch node_modules tools/node_modules
 
 .PHONY: update-py
 update-py: node-check | node_modules
@@ -913,7 +918,7 @@ $(WEBPACK_DEST): $(WEBPACK_SOURCES) $(WEBPACK_CONFIGS) package-lock.json
 	@touch $(WEBPACK_DEST)
 
 .PHONY: svg
-svg: node-check | node_modules
+svg: node-check tools/node_modules
 	rm -rf $(SVG_DEST_DIR)
 	node tools/generate-svg.js
 
@@ -933,6 +938,14 @@ lockfile-check:
 	@diff=$$(git diff --color=always package-lock.json); \
 	if [ -n "$$diff" ]; then \
 		echo "package-lock.json is inconsistent with package.json"; \
+		echo "Please run 'npm install --package-lock-only' and commit the result:"; \
+		echo "$${diff}"; \
+		exit 1; \
+	fi
+	cd tools && npm install --package-lock-only
+	@diff=$$(git diff --color=always tools/package-lock.json); \
+	if [ -n "$$diff" ]; then \
+		echo "tools/package-lock.json is inconsistent with package.json"; \
 		echo "Please run 'npm install --package-lock-only' and commit the result:"; \
 		echo "$${diff}"; \
 		exit 1; \
@@ -957,8 +970,7 @@ generate-gitignore:
 	$(GO) run build/generate-gitignores.go
 
 .PHONY: generate-images
-generate-images: | node_modules
-	npm install --no-save fabric@6.0.0-beta20 imagemin-zopfli@7
+generate-images: tools/node_modules
 	node tools/generate-images.js $(TAGS)
 
 .PHONY: generate-manpage
