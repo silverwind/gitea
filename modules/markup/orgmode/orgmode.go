@@ -73,7 +73,7 @@ func Render(ctx *markup.RenderContext, input io.Reader, output io.Writer) error 
 		}
 
 		// include language-x class as part of commonmark spec
-		if err := ctx.RenderInternal.FormatWithSafeAttrs(w, `<pre><code class="chroma language-%s">`, lang); err != nil {
+		if err := ctx.RenderInternal.FormatWithSafeAttrs(w, markup.CodeOpen(lang, false)); err != nil {
 			return ""
 		}
 		if lexer == nil {
@@ -86,7 +86,7 @@ func Render(ctx *markup.RenderContext, input io.Reader, output io.Writer) error 
 				return ""
 			}
 		}
-		if _, err := w.WriteString("</code></pre>"); err != nil {
+		if _, err := w.WriteString(markup.CodeClose()); err != nil {
 			return ""
 		}
 

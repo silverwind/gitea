@@ -4,6 +4,7 @@
 package math
 
 import (
+	"code.gitea.io/gitea/modules/markup"
 	"code.gitea.io/gitea/modules/markup/internal"
 
 	gast "github.com/yuin/goldmark/ast"
@@ -37,7 +38,7 @@ func (r *BlockRenderer) writeLines(w util.BufWriter, source []byte, n gast.Node)
 func (r *BlockRenderer) renderBlock(w util.BufWriter, source []byte, node gast.Node, entering bool) (gast.WalkStatus, error) {
 	n := node.(*Block)
 	if entering {
-		_ = r.renderInternal.FormatWithSafeAttrs(w, `<pre class="code-block is-loading"><code class="chroma language-math display">`)
+		_ = r.renderInternal.FormatWithSafeAttrs(w, markup.CodeOpen("math", false))
 		r.writeLines(w, source, n)
 	} else {
 		_, _ = w.WriteString(`</code></pre>` + "\n")

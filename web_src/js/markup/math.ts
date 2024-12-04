@@ -29,11 +29,9 @@ export async function renderMath(): Promise<void> {
       continue;
     }
 
-    const displayMode = el.classList.contains('display');
-    const nodeName = displayMode ? 'p' : 'span';
-
+    const displayMode = el.classList.contains('katex-use-display-mode');
     try {
-      const tempEl = document.createElement(nodeName);
+      const tempEl = document.createElement(displayMode ? 'p' : 'span');
       katex.render(source, tempEl, {
         maxSize: MAX_SIZE,
         maxExpand: MAX_EXPAND,

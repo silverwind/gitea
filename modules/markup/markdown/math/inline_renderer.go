@@ -6,6 +6,7 @@ package math
 import (
 	"bytes"
 
+	"code.gitea.io/gitea/modules/markup"
 	"code.gitea.io/gitea/modules/markup/internal"
 
 	"github.com/yuin/goldmark/ast"
@@ -25,11 +26,11 @@ func NewInlineRenderer(renderInternal *internal.RenderInternal) renderer.NodeRen
 
 func (r *InlineRenderer) renderInline(w util.BufWriter, source []byte, n ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
-		extraClass := ""
+		isInline := false
 		if _, ok := n.(*InlineBlock); ok {
-			extraClass = "display "
+			isInline = true
 		}
-		_ = r.renderInternal.FormatWithSafeAttrs(w, `<code class="language-math %sis-loading">`, extraClass)
+		_ = r.renderInternal.FormatWithSafeAttrs(w, markup.CodeOpen("math", isInline))
 		for c := n.FirstChild(); c != nil; c = c.NextSibling() {
 			segment := c.(*ast.Text).Segment
 			value := util.EscapeHTML(segment.Value(source))

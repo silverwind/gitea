@@ -55,3 +55,28 @@ func (r *SimpleRenderHelper) ResolveLink(link string, likeType LinkType) string 
 }
 
 var _ RenderHelper = (*SimpleRenderHelper)(nil)
+
+func CodeOpen(codeLanguage string, isInline bool) string {
+	preClass := "code-block"
+	codeClass := "chroma"
+
+	// include language-x class as part of commonmark spec
+	if codeLanguage != "" {
+		codeClass += " language-" + codeLanguage
+	}
+
+	if codeLanguage == "mermaid" {
+		preClass += " is-loading"
+	} else if codeLanguage == "math" {
+		preClass += " is-loading"
+		if !isInline {
+			codeClass += ` katex-use-display-mode` // used by js
+		}
+	}
+
+	return `<pre class="` + preClass + `"><code class="` + codeClass + `">`
+}
+
+func CodeClose() string {
+	return "</code></pre>"
+}
