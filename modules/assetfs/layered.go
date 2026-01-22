@@ -5,6 +5,7 @@ package assetfs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -88,7 +89,7 @@ func (l *LayeredFS) ReadLayeredFile(elems ...string) ([]byte, string, error) {
 	name := util.PathJoinRel(elems...)
 	for _, layer := range l.layers {
 		bs, err := fs.ReadFile(layer, name)
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			continue
 		} else if err != nil {
 			return nil, layer.name, err
