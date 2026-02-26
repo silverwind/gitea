@@ -273,6 +273,9 @@ func UpdateRelease(ctx context.Context, doer *user_model.User, gitRepo *git.Repo
 		return err
 	}
 	isConvertedFromTag := oldRelease.IsTag && !rel.IsTag
+	if isConvertedFromTag {
+		rel.CreatedUnix = timeutil.TimeStampNow()
+	}
 
 	if err := db.WithTx(ctx, func(ctx context.Context) error {
 		if err = repo_model.UpdateRelease(ctx, rel); err != nil {
